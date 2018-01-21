@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+	<channel>
+		<title>Xuhuanchao</title>
+		<description>Welcome to here...</description>
+		<link>http://localhost:4000</link>
+		<atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
+		
+			<item>
+				<title>Read Me</title>
+				<description>&lt;h1 id=&quot;jekyll-xixia&quot;&gt;Jekyll Xixia&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Get it from &lt;a href=&quot;https://github.com/zxixia/jekyll-xixia&quot;&gt;github&lt;/a&gt;.&lt;/li&gt;
+  &lt;li&gt;See the &lt;a href=&quot;http://xixia.info/jekyll-xixia/&quot;&gt;live demo&lt;/a&gt;.&lt;/li&gt;
+  &lt;li&gt;See it &lt;a href=&quot;http://xixia.info/&quot;&gt;in action on my own blog&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;A simple and clean Jekyll theme using &lt;a href=&quot;http://getbootstrap.com&quot;&gt;bootstrap&lt;/a&gt;
+(not to be confused with jekyll-bootstrap) that’s easy to modify and very
+modular in component and element reuse.&lt;/p&gt;
+
+&lt;p&gt;The theme works well on mobile phones, using a collapsable nav bar and hiding the
+sidebar. The links pane in the sidebar is available on mobile through the nav menu,
+and you can do the same thing for any other sections added to the sidebar.&lt;/p&gt;
+
+&lt;p&gt;Don’t forget to occassionally merge against my upstream repository so you can get
+the latest changes. Pull requests are encouraged and accepted!&lt;/p&gt;
+
+&lt;h1 id=&quot;preview&quot;&gt;Preview&lt;/h1&gt;
+&lt;p&gt;&lt;img src=&quot;//assets/images/preview.png&quot; alt=&quot;Xixia&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;license&quot;&gt;License&lt;/h1&gt;
+
+&lt;p&gt;The content of this theme is distributed and licensed under a
+&lt;img src=&quot;/assets/images/cc_by_88x31.png&quot; alt=&quot;License Badge&quot; /&gt;
+&lt;a href=&quot;https://creativecommons.org/licenses/by/4.0/legalcode&quot;&gt;Creative Commons Attribution 4.0 License&lt;/a&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;This license lets others distribute, remix, tweak, and build upon your work,
+even commercially, as long as they credit you for the original creation. This
+is the most accommodating of licenses offered. Recommended for maximum
+dissemination and use of licensed materials.
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;In other words: you can do anything you want with this theme on any site, just please
+provide a link to &lt;a href=&quot;https://github.com/zxixia/jekyll-xixia&quot;&gt;the original theme on github&lt;/a&gt;
+so I get credit for the original design. Beyond that, have at it!&lt;/p&gt;
+
+&lt;h1 id=&quot;thanks&quot;&gt;Thanks&lt;/h1&gt;
+
+&lt;p&gt;1，&lt;a href=&quot;http://jekyllrb.com/&quot;&gt;Jekyll&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;2，&lt;a href=&quot;http://getbootstrap.com/&quot;&gt;Bootstrap&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;3，&lt;a href=&quot;https://github.com/&quot;&gt;Github&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;4，&lt;a href=&quot;https://github.com/scotte/jekyll-clean&quot;&gt;Jekyll Clean Theme&lt;/a&gt;&lt;/p&gt;
+
+</description>
+				<pubDate>Tue, 19 Sep 2017 00:00:00 +0800</pubDate>
+				<link>http://localhost:4000/other/2017/09/19/README.html</link>
+				<guid isPermaLink="true">http://localhost:4000/other/2017/09/19/README.html</guid>
+			</item>
+		
+	</channel>
+</rss>
