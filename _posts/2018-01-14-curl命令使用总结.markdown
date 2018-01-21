@@ -1,0 +1,70 @@
+---
+layout: post
+title:  "CURL 命令"
+categories: Linux
+tags: Linux
+author: xuhuanchao
+description: 使用curl 快速排查网络问题
+---
+
+# curl命令使用总结：
+
+1、测试资源访问是否正常，因为客户会遇到资源访问不了，可以用下面的命令进行先测试看是否能访问成功
+
+> `curl -I "http://test.zhaojianfeng.cn/gif8.gif"`
+
+如图所示：
+![](http://gitblog.xuhc.me/15005539284531.jpg)
+**tips：**
+其他请求头信息，可以再私下去了解
+
+-------
+
+2、因为使用CDN，可能访问的节点不一样，所以要确认客户不能正常访问，最好是能访问与客户访问的同一个CDN节点， 即：代理到客户访问的CDN节点进行访问
+> `curl -I "http://test.zhaojianfeng.cn/gif8.gif" -x '183.131.7.23:80'` 
+
+![](http://gitblog.xuhc.me/15005560246989.jpg)
+tips: 代理ip 也可以换成域名
+
+-------
+3、将资源文件下载到本地， -o or -O
+>`curl -O "http://test.zhaojianfeng.cn/gif8.gif" `
+>`curl -o gif_8.gif "http://test.zhaojianfeng.cn/gif8.gif"`
+
+![](http://gitblog.xuhc.me/15005564166048.jpg)
+
+-------
+4、获取客户源站的内容，可能客户源站的文件资源更新了， 但没有刷新缓存， 导致CDN节点获取还是旧的文件，所以需要从客户源站获取，进行对比确认； 也可以用来判断客户的源站是否访问正常
+`curl -I http://111.22.33.021/js/jquery.js -H 'host:aaa.xxx.com'`
+**tips：**
+111.22.33.021 是源站IP
+aaa.xxx.com 是CDN加速域名
+因为没有实际的例子，所以是模拟的数据，可以参考该命令格式
+
+-------
+
+5、CDN检验Referer白名单是否配置生效
+> `curl -I --referer http://qq.com/ http://test.zhaojianfeng.cn/gif8.gif 2>/dev/null|grep 'HTTP'`
+>`curl -I --referer http://1.sina.com/ http://test.zhaojianfeng.cn/gif8.gif 2>/dev/null|grep 'HTTP'`
+
+![](http://gitblog.xuhc.me/15006002115406.jpg)
+
+**portal平台对该域名的白名单配置，如图所示：**
+
+![](http://gitblog.xuhc.me/15006004043766.jpg)
+
+-------
+6、curl模拟form表单上传
+首先要获取一个正确的token，然后才能执行如下命令：
+> `curl -v up.qiniu.com -F token=0ZT-Rd0AswhPQti5lX2Ytt1T6XkyM80eY_4w9Pm9:QkXwoe2XVx5Fuo4Za0XA9fZLsvU=:eyJzY29wZSI6InRlc3QtYnVja2V0IiwiZGVhZGxpbmUiOjE1MDA1NjEyNzJ9 -F'file=testUploadByForm'`
+
+执行结果，如图所示：
+![](http://gitblog.xuhc.me/15005578807359.jpg)
+
+
+
+
+
+
+
+

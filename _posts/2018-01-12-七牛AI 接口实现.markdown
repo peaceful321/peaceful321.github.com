@@ -1,0 +1,160 @@
+---
+layout: post
+title:  "七牛云：鉴黄、鉴暴恐、政治人物识别"
+categories: qiniu
+tags: Java, qiniu
+author: xuhuanchao
+description: 七牛云人工智能标准接口功能实现 By Java
+---
+
+# Atlab API 
+
+* 鉴黄
+* 鉴暴恐
+* 政治人物识别
+
+七牛提供非存储在七牛云bucket的图片识别接口，目前这三个接口只支持png、jpg、bmp图片格式
+如果是存放在七牛云的图片，则仅支持华东的Bucket
+
+## 鉴黄
+
+**请求语法**
+
+```
+POST /v1/pulp HTTP/1.1
+Host: argus.atlab.ai
+Content-Type: application/json
+Authorization: Qiniu <AccessKey>:<Sign>
+
+{
+    "data": {
+        "uri": "http://7xlv47.com1.z0.glb.clouddn.com/pulpsexy.jpg"
+    }
+}
+```
+
+**Java 代码实现鉴黄**
+
+```
+/**
+ * 非七牛图片 鉴黄实现
+ * 
+ * @param imageUrl 图片url
+ */
+public static void qpulp(String imageUrl) {
+    Auth auth = Auth.create(ACCESS_KEY, SECRET_KEY);
+    // 鉴黄API请求地址
+    String requestUrl = "http://argus.atlab.ai/v1/pulp";
+    // 构造请求body
+    StringMap data = new StringMap();
+    data.put("uri", "http://osk5grso9.bkt.clouddn.com/WechatIMG260.jpeg");
+    StringMap map = new StringMap();
+    map.put("data", data.map());
+    String postBody = Json.encode(map);
+    // 生成accessToken
+    String accessToken = String.format("Qiniu %s", auth.signRequestV2(requestUrl, "POST", postBody.getBytes(), Client.JsonMime));
+       
+    // 构造请求headers
+    StringMap headers = new StringMap();
+       
+    headers.put("Authorization", accessToken);
+       
+    // 发起鉴黄请求
+    Client client = new Client();
+    try {
+      com.qiniu.http.Response resp = client.post(requestUrl, postBody.getBytes(), headers, Client.JsonMime);
+      System.out.println(resp);
+      System.out.println(resp.bodyString());
+    } catch (Exception e) {
+      System.out.println(e);
+    }
+}
+```
+
+## 鉴暴恐
+**请求语法**
+
+```
+POST /v1/terror HTTP/1.1
+Host: argus.atlab.ai
+Content-Type: application/json
+Authorization: Qiniu <AccessKey>:<Sign>
+
+{
+    "data": {
+        "uri": "https://odum9helk.qnssl.com/resource/gogopher.jpg"
+    }
+}
+```
+
+**Java 代码实现 鉴暴恐**
+
+```
+    /**
+     * 非存放于七牛的图片 暴恐鉴别
+     * @param imageUrl
+     */
+    public static void terror(String imageUrl) {
+        Auth auth = Auth.create(ACCESS_KEY, SECRET_KEY);
+        String reqUrl = "http://argus.atlab.ai/v1/terror";
+        StringMap uriMap = new StringMap().put("uri", imageUrl);
+        StringMap dataMap = new StringMap().put("data", uriMap.map());
+        	
+        String accessToken = String.format("Qiniu %s", auth.signRequestV2(reqUrl, "POST", Json.encode(dataMap).getBytes(), Client.JsonMime));
+        StringMap headers = new StringMap();
+        headers.putNotNull("Authorization", accessToken);
+        try {
+        	Client client = new Client();
+        	Response resp = client.post(reqUrl, Json.encode(dataMap).getBytes(), headers, Client.JsonMime);
+        	System.out.println(resp.bodyString());
+        } catch(QiniuException e) {
+        	e.printStackTrace();
+        }
+	}
+```
+
+## 政治人物识别
+**请求语法**
+
+```
+POST /v1/face/search/politician Http/1.1
+Host: argus.atlab.ai
+Content-Type: application/json
+Authorization: Qiniu <AccessKey>:<Sign>
+
+{
+    "data": {
+        "uri": "https://ors35x6a7.qnssl.com/atshow-face-detection-20170703/7.png"
+    }
+}
+```
+
+
+**Java 代码实现 政治人物识别**
+
+```
+    /**
+     * 非存储于七牛的图片， 政治人物识别 
+     * @param imageUrl
+     */
+	public static void politician(String imageUrl) {
+		Auth auth = Auth.create(ACCESS_KEY, SECRET_KEY);
+		String reqUrl = "http://argus.atlab.ai/v1/face/search/politician";
+		StringMap uriMap = new StringMap().put("uri", imageUrl);
+		StringMap dataMap = new StringMap().put("data", uriMap.map());
+		
+		String accessToken = String.format("Qiniu %s", auth.signRequestV2(reqUrl, "POST", Json.encode(dataMap).getBytes(), Client.JsonMime));
+		StringMap headers = new StringMap();
+		headers.putNotNull("Authorization", accessToken);
+		try {
+			Client client = new Client();
+			Response resp = client.post(reqUrl, Json.encode(dataMap).getBytes(), headers, Client.JsonMime);
+			System.out.println(resp.bodyString());
+		} catch(QiniuException e) {
+			e.printStackTrace();
+		}
+	}
+
+```
+
+

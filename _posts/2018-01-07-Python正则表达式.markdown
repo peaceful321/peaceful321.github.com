@@ -1,0 +1,89 @@
+---
+layout: post
+title:  "正则表达式"
+categories: Python
+tags: Python
+author: xuhuanchao
+description: python 正则表达式基础知识
+---
+
+# python 正则表达式
+
+## 基本语法
+
+<style> table th:first-of-type { width: 200px; } </style>
+ 字符 | 匹配 
+  ------------- | -------------
+ . | 匹配任意字符 
+ [...] | 匹配字符集 
+ \d / \D | 匹配数字 / 非数字 
+ \s / \S | 匹配空白 / 非空白字符 
+ \w / \W | 匹配单词字符[a-zA-Z0-9] / 非单词字符 
+
+
+
+------- 
+
+<style> table th:first-of-type { width: 200px; } </style>
+ 字符 | 匹配 
+  ------------- | -------------
+ . | 匹配任意字符，除去 \n 
+ [...] | 匹配字符集 
+ \d / \D | 匹配数字 / 非数字 
+ \s / \S | 匹配空白 / 非空白字符 
+ \w / \W | 匹配单词字符[a-zA-Z0-9] / 非单词字符 
+
+
+-------
+
+
+<style> table th:first-of-type { width: 200px; } </style>
+ 字符 | 匹配 
+ ------------- | -------------
+ * | 匹配前一个字符0次或者无限次 
+ + | 匹配前一个字符1次或者无限次 
+ ？ | 匹配前一个字符0次或者1次 
+ {m} \ {m,n} | 匹配前一个字符 m次 或者 m 到 n次 
+ *? \ +? \ ?? | 匹配模式为非贪婪模式 （即尽可能少做匹配）
+
+
+-------
+
+<style> table th:first-of-type { width: 200px; } </style>
+ 字符 | 匹配 
+ ------------- | -------------
+ ^ | 匹配字符串开头 
+ $ | 匹配字符串结尾 
+ \A / \Z | 指定字符串必须出现在开头或者结尾 
+
+
+-------
+
+
+| 字符 | 匹配 |
+| ------------- | ------------- |
+| \| | 匹配左右任意一个表达式，逻辑或 |
+| （ab） | 括号中表达式作为一个分组 |
+| \<number> | 引用编号为number 的分组匹配到的字符串 |
+| (?P<name>) | 给分组起一个别名 |
+| (?P=name) | 引用别名为name的分组匹配字符串 |
+
+------- 
+
+
+
+## Python re模块 常用函数
+
+```
+search(pattern, string, flags=0) #在一个字符串中查找匹配
+
+findall(pattern, string, flags=0) #找到匹配， 返回所有匹配部分的列表
+
+sub(pattern, repl, string, count=0, flags=0) #将字符串中匹配正则b表达式的部分替换为其他值
+
+split(pattern, string, maxsplit=0, flags=0) #根据匹配分割字符串， 返回分割字符串组成的列表
+```
+
+
+
+

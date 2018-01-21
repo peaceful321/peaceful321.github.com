@@ -1,0 +1,113 @@
+---
+layout: post
+title:  "Linux 权限管理"
+categories: Linux
+tags: Linux
+author: xuhuanchao
+description: Linux 权限管理知识总结
+---
+
+# Linux 权限
+
+### 权限分类
+
+1. r - read - 4
+2. w - write - 2
+3. x - execute - 1
+
+###  用户分类
+
+1. 所有者 u - user
+2. 所属组 g - group
+3. 其他用户 o - other
+4. 所有用户 a - all
+
+###  用户管理
+
+1. 用户添加： useradd user_name
+2. 用户删除： userdel -r user_name
+3. 修改密码： passwd user_name 
+4. 查看用户： id user_name
+
+###  组管理
+
+1. 新建组： groupadd group_name
+2. 删除组： groupdel group_name
+
+###  用户与组
+
+1. 把用户加入组：gpasswd -a user_name group_name 
+2. 把组中用户删除：gpasswd -d user_name group_name
+
+###  权限管理
+
+* chmod（分配的对象就三种： u, g, o ----- 加在一起 a）
+    - chmod 755 file_name (4，2，1)
+    - chmod u+x file_name (语义化: chmod 用户[u/g/o/a] + or - 权限[r/w/x] file_name)
+* acl 权限分配
+    - setfacl 设置文件权限
+    
+    ```
+    setfacl -m u:user_name:rwx file_name
+    ```
+    - getfacl 查看文件权限
+    
+    ```
+    getfacl file_name
+    ```
+    - 删除文件权限
+    
+    ```
+    setfacl -x u:user_name file_name
+    ```
+    - 清空文件权限, 擦除所有的给该文件设置的 acl 权限
+    
+    ```
+    setfacl -b file_name
+    ```
+    - 创建和删除文件权限
+    
+    ```
+    setfacl -m u:user_name:rwx dir_name    #需要对目录设置acl 权限
+    ```
+    
+    - 对目录下的所有子目录及其文件都设置acl权限， 通过递归 -R 
+    
+    ```
+    setfacl -m u:user_name:rwx -R dir_name
+    ```
+    - 如何对后期新增的目录及目录下的文件，使其能继承所在目录的权限
+
+    ```
+    先执行 -m 命令， 再执行 -d 的 命令
+    setfacl -m u:user_name:rwx -R dir_name
+    setfacl -d u:user_name:rwx -R dir_name 
+    ```
+
+###  sudo 权限
+
+**设置用户对命令的执行权限 by visudo**
+
+* 设置
+
+```
+visudo  #打开 配置文件，添加下面的命令
+
+#给用户 user_name 来设置 添加、删除用户的 权限
+user_name localhost=/usr/sbin/useradd, /usr/sbin/userdel  
+```
+
+* 使用有密码sudo 授权命令
+
+```
+sudo /usr/sbin/useradd user_name
+sudo /usr/sbin/userdel -r user_name
+```
+
+* 使用无密码sudo 授权命令
+
+```
+visudo
+user_name localhost=NOPASSWD:/usr/bin/passwd  #不需要密码
+```
+

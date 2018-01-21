@@ -1,0 +1,434 @@
+---
+layout: post
+title:  "MySQL 高级"
+categories: MySQL
+tags: Database
+author: xuhuanchao
+description: MySQL高级 知识点总结
+---
+
+
+# MySQL 进阶
+
+**主要内容:**
+
+* MySQL视图
+* 存储过程
+* 函数
+* 事务
+* 触发器
+* 动态执行SQL
+
+
+## 视图View
+
+视图是一个虚拟表，其内容由查询定义。同真实的表一样，视图包含一系列带有名称的列和行数据。但是，视图并不在数据库中以存储的数据值集形式存在。行和列数据来自由定义视图的查询所引用的表，并且在引用视图时动态生成。对其中所引用的基础表来说，视图的作用类似于筛选。定义视图的筛选可以来自当前或其它数据库的一个或多个表，或者其它视图。通过视图进行查询没有任何限制，通过它们进行数据修改时的限制也很少。视图是存储在数据库中的查询的SQL 语句，它主要出于两种原因：安全原因， 视图可以隐藏一些数据。
+
+**创建视图**
+
+```
+--格式：CREATE VIEW 视图名称 AS  SQL语句
+CREATE VIEW v1 AS SELET nid, name FROM tab1 WHERE nid > 4
+```
+**删除视图**
+
+```
+--格式：DROP VIEW 视图名称
+DROP VIEW v1
+```
+
+**修改视图**
+
+```
+-- 格式：ALTER VIEW 视图名称 AS SQL语句
+ALTER VIEW v1 AS
+    SELET A.nid,B.NAME FROM tab1 A
+        LEFT JOIN B ON A.id = B.nid
+        LEFT JOIN C ON A.id = C.nid
+        WHERE tab1.id > 2
+```
+
+**使用视图**
+使用视图时，将其当作表进行操作即可，由于视图是虚拟表，所以无法使用其对真实表进行创建、更新和删除操作，仅能做查询用
+
+```
+select * from view_name
+```
+
+## 存储过程procedure
+
+**我们为什么要用存储过程呢 ？**
+应用程序分为两种，一种是基于web，一种是基于桌面，他们都和数据库进行交互来完成数据的存取工作。假设现在有一种应用程序包含了这两种，现在要修改其中的一个查询sql语句，那么我们可能要同时修改他们中对应的查询sql语句，当我们的应用程序很庞大很复杂的时候问题就出现这，不易维护！另外把sql查询语句放在我们的web程序或桌面中很容易遭到sql注入的破坏。而存储例程正好可以帮我们解决这些问题
+
+**创建存储过程**
+创建存储过程这块主要有两种，一种是带参数的，一种是不带参数的，先讲不带参数的再说不带参数的
+
+**不带参数案例**
+
+```
+-- 创建存储过程
+delimiter\\         --自定义语句结尾符号，因为这里要执行好多句sql语句，所以就得自定义，以防止出错
+create procedure p1()
+BEGIN
+    select * from tab1;
+END\\
+delimiter ;       --自定义局域结尾符号结束
+
+
+-- 执行存储过程
+call p1()
+```
+
+**带参数案例这块主要有三个类**
+
+* in              仅用于传入参数用
+* out             仅用于返回值用
+* inout           既可以传入又可以当作返回值
+
+```
+-- 创建存储过程
+delimiter \\
+create procedure p1(
+    in i1 int,                        -- 传入参数i1
+    in i2 int,                        -- 传入参数i2
+    inout i3 int,                     -- 即传入又能得到返回值
+    out r1 int                        -- 得到返回值
+)
+BEGIN
+    DECLARE temp1 int;
+    DECLARE temp2 int default 0;  
+    set temp1 = 1;
+    set r1 = i1 + i2 + temp1 + temp2; 
+    set i3 = i3 + 100;
+end\\
+delimiter ;
+
+-- 执行存储过程
+DECLARE @t1 INT default 3;           --  设置变量默认值为3
+DECLARE @t2 INT;                     --  设置变量
+CALL p1 (1, 2 ,@t1, @t2);            --  执行存储过程，并传入参数，t2自动取消
+SELECT @t1,@t2;                      --  查看存储过程输出结果
+```
+
+**删除存储过程**
+
+```
+drop procedure procedure_name;
+```
+
+**Python用pymysql模块调用存储过程**
+
+```
+#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+import pymysql
+
+conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='', db='day39b_')
+cursor = conn.cursor(cursor=pymysql.cursors.DictCursor)
+# 执行存储过程
+row = cursor.callproc('p1',(1,2,3))
+# 存储过程的查询结果
+selc = cursor.fetchall()
+print(selc)
+# 获取存储过程返回
+effect_row = cursor.execute('select @_p1_0,@_p1_1,@_p1_2')
+# 曲存储过程的返回值
+ret = cursor.fetchone()
+print(ret)
+# 提交，不然无法保存新建或者修改的数据
+conn.commit()
+# 关闭游标
+cursor.close()
+# 关闭连接
+conn.close()
+```
+
+## 函数function
+
+在MySQL中有很多内置函数，比如我们经常用的求平均值，求和，个数，各式各样，先给大家来一部门内置函数，然后再说说自定义函数吧，函数也可以传参数，也可以接收返回值，但是函数没办法得到执行语句得到的结果，存储过程可以
+
+```
+
+CHAR_LENGTH(str)
+        返回值为字符串str 的长度，长度的单位为字符。一个多字节字符算作一个单字符。
+        对于一个包含五个二字节字符集, LENGTH()返回值为 10, 而CHAR_LENGTH()的返回值为5。
+
+CONCAT(str1,str2,...)
+        字符串拼接
+        如有任何一个参数为NULL ，则返回值为 NULL。
+CONCAT_WS(separator,str1,str2,...)
+        字符串拼接（自定义连接符）
+        CONCAT_WS()不会忽略任何空字符串。 (然而会忽略所有的 NULL）。
+
+CONV(N,from_base,to_base)
+        进制转换
+        例如：
+            SELECT CONV('a',16,2); 表示将 a 由16进制转换为2进制字符串表示
+
+FORMAT(X,D)
+        将数字X 的格式写为'#,###,###.##',以四舍五入的方式保留小数点后 D 位， 并将结果以字符串的形式返回。若  D 为 0, 则返回结果不带有小数点，或不含小数部分。
+        例如：
+            SELECT FORMAT(12332.1,4); 结果为： '12,332.1000'
+INSERT(str,pos,len,newstr)
+        在str的指定位置插入字符串
+            pos：要替换位置其实位置
+            len：替换的长度
+            newstr：新字符串
+        特别的：
+            如果pos超过原字符串长度，则返回原字符串
+            如果len超过原字符串长度，则由新字符串完全替换
+INSTR(str,substr)
+        返回字符串 str 中子字符串的第一个出现位置。
+
+LEFT(str,len)
+        返回字符串str 从开始的len位置的子序列字符。
+
+LOWER(str)
+        变小写
+
+UPPER(str)
+        变大写
+
+LTRIM(str)
+        返回字符串 str ，其引导空格字符被删除。
+RTRIM(str)
+        返回字符串 str ，结尾空格字符被删去。
+SUBSTRING(str,pos,len)
+        获取字符串子序列
+
+LOCATE(substr,str,pos)
+        获取子序列索引位置
+
+REPEAT(str,count)
+        返回一个由重复的字符串str 组成的字符串，字符串str的数目等于count 。
+        若 count <= 0,则返回一个空字符串。
+        若str 或 count 为 NULL，则返回 NULL 。
+REPLACE(str,from_str,to_str)
+        返回字符串str 以及所有被字符串to_str替代的字符串from_str 。
+REVERSE(str)
+        返回字符串 str ，顺序和字符顺序相反。
+RIGHT(str,len)
+        从字符串str 开始，返回从后边开始len个字符组成的子序列
+
+SPACE(N)
+        返回一个由N空格组成的字符串。
+
+SUBSTRING(str,pos) , SUBSTRING(str FROM pos) SUBSTRING(str,pos,len) , SUBSTRING(str FROM pos FOR len)
+        不带有len 参数的格式从字符串str返回一个子字符串，起始于位置 pos。带有len参数的格式从字符串str返回一个长度同len字符相同的子字符串，起始于位置 pos。 使用 FROM的格式为标准 SQL 语法。也可能对pos使用一个负值。假若这样，则子字符串的位置起始于字符串结尾的pos 字符，而不是字符串的开头位置。在以下格式的函数中可以对pos 使用一个负值。
+
+        mysql> SELECT SUBSTRING('Quadratically',5);
+            -> 'ratically'
+
+        mysql> SELECT SUBSTRING('foobarbar' FROM 4);
+            -> 'barbar'
+
+        mysql> SELECT SUBSTRING('Quadratically',5,6);
+            -> 'ratica'
+
+        mysql> SELECT SUBSTRING('Sakila', -3);
+            -> 'ila'
+
+        mysql> SELECT SUBSTRING('Sakila', -5, 3);
+            -> 'aki'
+
+        mysql> SELECT SUBSTRING('Sakila' FROM -4 FOR 2);
+            -> 'ki'
+
+TRIM([{BOTH | LEADING | TRAILING} [remstr] FROM] str) TRIM(remstr FROM] str)
+        返回字符串 str ， 其中所有remstr 前缀和/或后缀都已被删除。若分类符BOTH、LEADIN或TRAILING中没有一个是给定的,则假设为BOTH 。 remstr 为可选项，在未指定情况下，可删除空格。
+
+        mysql> SELECT TRIM('  bar   ');
+                -> 'bar'
+
+        mysql> SELECT TRIM(LEADING 'x' FROM 'xxxbarxxx');
+                -> 'barxxx'
+
+        mysql> SELECT TRIM(BOTH 'x' FROM 'xxxbarxxx');
+                -> 'bar'
+
+        mysql> SELECT TRIM(TRAILING 'xyz' FROM 'barxxyz');
+                -> 'barx'
+
+```
+
+**自定义创建函数**
+
+```
+delimiter \\
+create function f1(
+    i1 int,
+    i2 int)
+returns int
+BEGIN
+    declare num int;
+    set num = i1 + i2;
+    return(num);
+END \\
+delimiter ;
+```
+
+**删除函数**
+
+```
+drop function f1;
+```
+
+**执行函数**
+
+```
+# 获取返回值
+declare @i VARCHAR(32);
+select UPPER('alex') into @i;
+SELECT @i;
+
+# 在查询中使用
+select f1(11,nid) ,name from tb2;
+```
+
+**事务**
+
+事务用于将某些操作的多个SQL作为原子性操作，一旦有某一个出现错误，即可回滚到原来的状态，从而保证数据库数据完整性。例如：当两张银行卡之间进行转账，甲方钱转出去了，突然光缆坏了，乙方还没收到钱，钱跑哪里去了，就为了防止这种情况，事务就出来了，事务可以防止这种事情发生
+
+**应用事务实例：**
+
+```
+delimiter \\
+create PROCEDURE p1(
+    OUT p_return_code tinyint
+)
+BEGIN 
+  DECLARE exit handler for sqlexception 
+  BEGIN 
+    -- ERROR 
+    set p_return_code = 1; 
+    rollback; 
+  END; 
+
+  DECLARE exit handler for sqlwarning 
+  BEGIN 
+    -- WARNING 
+    set p_return_code = 2; 
+    rollback; 
+  END; 
+
+  START TRANSACTION; 
+    DELETE from tb1;                   -- sql语句都放在这个里面
+    insert into tb2(name)values('seven');
+  COMMIT; 
+
+  -- SUCCESS 
+  set p_return_code = 0; 
+
+  END\\
+delimiter;
+```
+
+**执行存储过程**
+
+```
+DECLARE @i TINYINT;
+call p1(@i);
+select @i;
+```
+
+**触发器TRIGGER**
+
+触发器，简单来说就是当你在执行这条语句之前或者之后触发一次增删改查，触发器用于定制用户对表的行进行【增/删/改】前后的行为
+
+**基本语法**
+
+```
+# 插入前
+CREATE TRIGGER tri_before_insert_tb1 BEFORE INSERT ON tb1 FOR EACH ROW
+BEGIN
+    ...
+END
+
+# 插入后
+CREATE TRIGGER tri_after_insert_tb1 AFTER INSERT ON tb1 FOR EACH ROW
+BEGIN
+    ...
+END
+
+# 删除前
+CREATE TRIGGER tri_before_delete_tb1 BEFORE DELETE ON tb1 FOR EACH ROW
+BEGIN
+    ...
+END
+
+# 删除后
+CREATE TRIGGER tri_after_delete_tb1 AFTER DELETE ON tb1 FOR EACH ROW
+BEGIN
+    ...
+END
+
+# 更新前
+CREATE TRIGGER tri_before_update_tb1 BEFORE UPDATE ON tb1 FOR EACH ROW
+BEGIN
+    ...
+END
+
+# 更新后
+CREATE TRIGGER tri_after_update_tb1 AFTER UPDATE ON tb1 FOR EACH ROW
+BEGIN
+    ...
+END
+```
+
+**示例(插入前)**
+
+```
+-- 在往tab1插入数据之前往tab2中插入一条name = 张岩林，当然是在判断往tab1中插入的名字是不是等于aylin
+delimiter //
+CREATE TRIGGER tri_before_insert_tb1 BEFORE INSERT ON tb1 FOR EACH ROW
+BEGIN
+
+IF NEW. NAME == 'Martin' THEN
+    INSERT INTO tb2 (NAME)
+VALUES
+    ('马丁')
+END
+END//
+delimiter ;
+```
+
+**示例(插入后)**
+
+```
+delimiter //
+CREATE TRIGGER tri_after_insert_tb1 AFTER INSERT ON tb1 FOR EACH ROW
+BEGIN
+    IF NEW. num = 666 THEN
+        INSERT INTO tb2 (NAME)
+        VALUES
+            ('孙悟空'),
+            ('很厉害') ;
+    ELSEIF NEW. num = 555 THEN
+        INSERT INTO tb2 (NAME)
+        VALUES
+            ('ryan'),
+            ('cool') ;
+    END IF;
+END//
+delimiter ;
+```
+同样的删，改，查都是同样的道理
+特别的：NEW表示即将插入的数据行，OLD表示即将删除的数据行
+
+**删除触发器**
+
+```
+DROP TRIGGER tri_after_insert_tb1;
+```
+
+**使用触发器**
+触发器无法由用户直接调用，而知由于对表的【增/删/改】操作被动引发的。
+
+```
+insert into tb1(name) values(‘Jessica’)
+
+```
+
+
+
+
